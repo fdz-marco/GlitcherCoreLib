@@ -1,0 +1,50 @@
+<!--
+Author: Marco Fernandez
+Author URI: https://glitcher.dev
+Version: 2024.07.03
+License: MIT License
+-->
+<html>
+<head>
+    <title>WebSocket Client Tester</title>
+    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div id="top-bar">
+        <div id="logo">
+            <img src="https://placehold.co/30x30" alt="WebSim Logo" width="30" height="30">
+            <span id="app-name">WebSocket Tester</span>
+        </div>
+        <div id="websocket-controls">
+            <input type="text" id="websocket-input" placeholder="Enter WebSocket URL">
+            <button id="websocket-button">Connect</button>
+        </div>
+        <button id="toggle-mode">🌓</button>
+    </div>
+    <div id="chat-container">
+        <div id="chat-messages"></div>
+        <div id="resize-handle"></div>
+        <div id="input-area">
+            <div id="input-container">
+                <div id="message-input" contenteditable="true" spellcheck="false"></div>
+                <div id="message-buttons">
+                    <button id="send-button">Send</button>
+                    <button id="template-button">Templates</button>
+                    <div id="template-dropdown">
+                        <a href="#" data-template='{"apiKey" : "", "action" : "hello", "payload" : "" }'>hello</a>
+                        <a href="#" data-template='{"apiKey" : "", "action" : "echo", "payload" : "Repeat my message" }'>echo</a>
+                        <a href="#" data-template='{"apiKey" : "", "action" : "echoAll", "payload" : "Repeat my message to everyone :D:D" }'>echoAll</a>
+                        <a href="#" data-template='{"apiKey" : "", "action" : "users","payload" : "" }'>users</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer-bar">
+        © 2024 - glitcher.dev
+    </div>
+    <script src="script.js"></script>
+    <script src="inject.js"></script>
+</body>
+</html>
