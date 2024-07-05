@@ -198,6 +198,41 @@ namespace glitcher.core
         }
 
         /// <summary>
+        /// Delete Files of One Directory Recursively
+        /// </summary>
+        /// <param name="targetPath">Target Path</param>
+        /// <returns>(bool)</returns>
+        public static bool DeleteFilesRecursively(string targetPath)
+        {
+            try
+            {
+                if (!Directory.Exists(targetPath))
+                {
+                    throw new DirectoryNotFoundException($"The directory '{targetPath}' does not exist.");
+                }
+                // Delete all files in the directory
+                string[] files = Directory.GetFiles(targetPath);
+                foreach (string file in files)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal); // Ensure the file is not read-only
+                    File.Delete(file);
+                }
+                // Delete all subdirectories in the directory
+                string[] subDirectories = Directory.GetDirectories(targetPath);
+                foreach (string subDirectory in subDirectories)
+                {
+                    DeleteFilesRecursively(subDirectory);
+                    Directory.Delete(subDirectory);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Get Calling Assembly
         /// </summary>
         /// <returns>(Assembly)</returns>

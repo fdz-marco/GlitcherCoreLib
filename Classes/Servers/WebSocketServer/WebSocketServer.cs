@@ -221,7 +221,7 @@ namespace glitcher.core.Servers
             _ = SendToClient(client, new WebSocketServerMsgSent("welcome", $"Hi. Welcome {client.IPAddress} <{client.UIDshort}>! Connected On: {client.connectedOn}").ToString(), cToken.Token);
 
             // Create buffer for result
-            var buffer = new byte[1024];
+            var buffer = new byte[10240];
             WebSocketReceiveResult result;
 
             while ((client.WebSocket.State == WebSocketState.Open) && (!cToken.IsCancellationRequested))
