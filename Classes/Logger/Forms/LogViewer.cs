@@ -7,7 +7,7 @@ namespace glitcher.core
     /// </summary>
     /// <remarks>
     /// Author: Marco Fernandez (marcofdz.com / glitcher.dev)<br/>
-    /// Last modified: 2024.06.17 - June 17, 2024
+    /// Last modified: 2024.09.16 - September 16, 2024
     /// </remarks>
     public partial class LogViewer : Form
     {
