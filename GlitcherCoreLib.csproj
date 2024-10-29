@@ -12,4 +12,15 @@
 		<EmbeddedResource Include="Resources\*" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Classes\Databases\General\" />
+	  <Folder Include="Classes\Databases\MySQL\" />
+	  <Folder Include="Classes\Databases\Clickhouse\" />
+	  <Folder Include="Classes\Databases\SQLite\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+	</ItemGroup>
+
 </Project>
