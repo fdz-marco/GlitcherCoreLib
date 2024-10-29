@@ -1,85 +1,86 @@
 ﻿using System.Data;
 using System.Data.Common;
-using ClickHouse.Client.ADO;
+using System.Data.SQLite;
 
 namespace glitcher.core.Databases
 {
     /// <summary>
-    /// (Class) Light ClickHouse Client <br/>
-    /// Class to execute a ClickHouse Client.<br/><br/>
+    /// (Class) Light SQLite Client <br/>
+    /// Class to execute a SQLite Client.<br/><br/>
     /// **Important**<br/>
-    /// Nugget Package Required: ClickHouse.Client<br/>
+    /// Nugget Package Required: System.Data.SQLite<br/>
     /// </summary>
     /// <remarks>
     /// Author: Marco Fernandez<br/>
     /// Last modified: 2024.07.18 - July 18, 2024
     /// </remarks>
-    public class ClickHouseClient
+    public class SQLiteClient
     {
-
         #region Properties
 
-        private ClickHouseConnection? _connection;
+        private SQLiteConnection? _connection = null;
 
         public string server { get; set; } = string.Empty;
-        public int port { get; set; } = 0;
-        public string database { get; set; } = string.Empty;
-        public string username { get; set; } = string.Empty;
-        public string password { get; set; } = string.Empty;
         public string lastError { get; set; } = string.Empty;
         public long lastExec { get; set; } = 0;
         public bool connected { get; set; } = false;
-        public string baseURL { get => string.Format("{0}://{1}:{2}", DBTypes.ClickHouse.ToString().ToLower(), this.server, this.port.ToString()); }
+        public string baseURL { get => string.Format("{0}://{1}/{2}", DBTypes.SQLite.ToString().ToLower(), AppContext.BaseDirectory.ToLower(), this.server ); }
+        public string clientId = "";
 
-        public event EventHandler<ClickHouseClientEvent>? ChangeOccurred;
+        public event EventHandler<SQLiteClientEvent>? ChangeOccurred;
 
         #endregion
 
         #region Constructor / Settings / Initialization Tasks
 
         /// <summary>
-        /// Creates a Light ClickHouse Client
+        /// Creates a Light SQLite Client
         /// </summary>
-        /// <param name="server">ClickHouse Server</param>
-        /// <param name="port">ClickHouse Port</param>
-        /// <param name="database">ClickHouse Database</param>
-        /// <param name="username">ClickHouse Username</param>
-        /// <param name="password">ClickHouse Password</param>
+        /// <param name="server">SQLite Server</param>
         /// <param name="autostart">Start sever on creation</param>
-        public ClickHouseClient(string server = "", int port = 8443, string database = "", string username = "", string password = "", bool autostart = true)
+        public SQLiteClient(string server = "", bool autostart = true)
         {
             this.server = server;
-            this.port = port;
-            this.database = database;
-            this.username = username;
-            this.password = password;
-            Logger.Add(LogLevel.OnlyDebug, "ClickHouse Client", $"ClickHouse Client created. Base URL: <{baseURL}>.", username);
+            this.clientId = Guid.NewGuid().ToString().Substring(0, 6);
+            Logger.Add(LogLevel.OnlyDebug, "SQLite Client", $"SQLite Client created. Base URL: <{baseURL}>.", clientId);
             if (autostart)
                 this.Connect();
         }
 
         /// <summary>
-        /// Update settings of ClickHouse Client
+        /// Update settings of SQLite Client
         /// </summary>
-        /// <param name="server">ClickHouse Server</param>
-        /// <param name="port">ClickHouse Port</param>
-        /// <param name="database">ClickHouse Database</param>
-        /// <param name="username">ClickHouse Username</param>
-        /// <param name="password">ClickHouse Password</param>
+        /// <param name="server">SQLite Server</param>
         /// <param name="restart">Restart Server on Update</param>
         /// <returns>(void)</returns>
-        public async Task Update(string server = "", int port = 8443, string database = "", string username = "", string password = "", bool restart = true)
+        public async Task Update(string server = "", bool restart = true)
         {
             if (restart)
                 await this.Disconnect();
             this.server = server;
-            this.port = port;
-            this.database = database;
-            this.username = username;
-            this.password = password;
+            Logger.Add(LogLevel.OnlyDebug, "SQLite Client", $"SQLite Client created. Base URL: <{baseURL}>.", clientId);
             if (restart)
                 await this.Connect();
-            Logger.Add(LogLevel.OnlyDebug, "ClickHouse Client", $"Updated Settings. Base URL: <{baseURL}>.", username);
+        }
+
+        /// <summary>
+        /// Create Database file if doesn't exist
+        /// </summary>
+        /// <param name="server">SQLite Server</param>
+        /// <returns>(bool) True if created, False alrady exists</returns>
+        public bool CreateDB(string server = "database.db")
+        {
+            if (!File.Exists(server))
+            {
+                SQLiteConnection.CreateFile(server);
+                Logger.Add(LogLevel.OnlyDebug, "SQLite Client", $"Database file created. File: {server}.");
+                return true;
+            }
+            else
+            {
+                Logger.Add(LogLevel.OnlyDebug, "SQLite Client", $"Database file already exist. File: {server}.");
+                return false;
+            }
         }
 
         #endregion
@@ -87,7 +88,7 @@ namespace glitcher.core.Databases
         #region Connect / Disconnect
 
         /// <summary>
-        /// Connect to a ClickHouse Server (Database)
+        /// Connect to a SQLite Server (Database)
         /// </summary>
         /// <returns>(bool *async) Succeded / Failed</returns>
         public async Task<bool> Connect()
@@ -98,13 +99,13 @@ namespace glitcher.core.Databases
                 if (_connection.State == ConnectionState.Open)
                 {
                     lastError = $"";
-                    Logger.Add(LogLevel.Info, "ClickHouse Client", $"Connection already stablished. Base URL: <{baseURL}>.", username);
+                    Logger.Add(LogLevel.Info, "SQLite Client", $"Connection already stablished. Base URL: <{baseURL}>.", clientId);
                     return true;
                 }
                 else
                 {
-                    lastError = $"Error connecting ClickHouse Database. Connection Status: {_connection.State.ToString()}.";
-                    Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                    lastError = $"Error connecting SQLite Database. Connection Status: {_connection.State.ToString()}.";
+                    Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                     return false;
                 }
             }
@@ -113,57 +114,37 @@ namespace glitcher.core.Databases
             if (string.IsNullOrEmpty(this.server))
             {
                 lastError = $"Error: No Server name declared.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                 return false;
             }
-            if (this.port == 0)
-            {
-                lastError = $"Error: No Port declared.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
-                return false;
-            }
-            if (string.IsNullOrEmpty(this.database))
-            {
-                lastError = $"Error: No database name declared.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
-                return false;
-            }
-            if (string.IsNullOrEmpty(this.username))
-            {
-                lastError = $"Error: No username declared.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
-                return false;
-            }
-            if (string.IsNullOrEmpty(this.password))
-            {
-                lastError = $"Error: No password found.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
-                return false;
-            }
+
+            // Create Database file if doesn't exist
+            CreateDB();
 
             // Execute Connection
             try
             {
-                string connectionString = string.Format("Host={0}; Port={1}; Database={2}; Username={3}; Password={4}", this.server, this.port, this.database, this.username, this.password);
-                _connection = new ClickHouseConnection(connectionString);
+                string connectionString = string.Format("Data Source={0}; Version=3; New=True; Compress=True;", this.server);
+                _connection = new SQLiteConnection(connectionString);
                 await _connection.OpenAsync();
                 lastError = "";
-                Logger.Add(LogLevel.Info, "ClickHouse Client", $"Connection stablished <Server={this.server} | Port={this.port} | Database={this.database}>.", username);
+                Logger.Add(LogLevel.Info, "SQLite Client", $"Connection stablished <{baseURL}>.", clientId);
                 NotifyChange("connected");
                 return true;
             }
             catch (Exception ex)
             {
-                lastError = $"Error connecting ClickHouse Database. Exception: {ex.Message}.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                lastError = $"Error connecting SQLLite Database. Exception: {ex.Message}.";
+                Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                 _connection = null;
                 NotifyChange("disconnected");
                 return false;
             }
         }
 
+
         /// <summary>
-        /// Disconnect from a ClickHouse Server (Database)
+        /// Disconnect from a SQLite Server (Database)
         /// </summary>
         /// <returns>(bool *async) Succeded / Failed</returns>
         public async Task<bool> Disconnect()
@@ -171,7 +152,7 @@ namespace glitcher.core.Databases
             // Already disconnected
             if (!this.connected || _connection == null)
             {
-                Logger.Add(LogLevel.Info, "ClickHouse Client", $"ClickHouse Client already disconnected.", username);
+                Logger.Add(LogLevel.Info, "SQLite Client", $"SQLite Client already disconnected.", clientId);
                 return true;
             }
 
@@ -181,14 +162,14 @@ namespace glitcher.core.Databases
                 await _connection.CloseAsync();
                 _connection.Dispose();
                 _connection = null;
-                Logger.Add(LogLevel.Info, "ClickHouse Client", $"Connection Disconnected <Server={this.server} | Port={this.port} | Database={this.database}>.", username);
+                Logger.Add(LogLevel.Info, "SQLite Client", $"Connection Disconnected <{baseURL}>.", clientId);
                 NotifyChange("disconnected");
                 return true;
             }
             catch (Exception ex)
             {
-                lastError = $"Error closing connection ClickHouse Database. Exception: {ex.Message}.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                lastError = $"Error closing connection SQLite Database. Exception: {ex.Message}.";
+                Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                 NotifyChange("undefined");
                 return false;
             }
@@ -213,7 +194,7 @@ namespace glitcher.core.Databases
             if (!this.connected || _connection == null)
             {
                 this.lastError = $"Error during querying database. No connection found.";
-                Logger.Add(LogLevel.Fatal, "ClickHouse Client", $"{lastError}", username);
+                Logger.Add(LogLevel.Fatal, "SQLite Client", $"{lastError}", clientId);
                 return null;
             }
 
@@ -221,19 +202,18 @@ namespace glitcher.core.Databases
             try
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                ClickHouseCommand cmd = new ClickHouseCommand(_connection);
-                cmd.CommandText = query;
+                SQLiteCommand cmd = new SQLiteCommand(query, _connection);
                 int affectedRows = await cmd.ExecuteNonQueryAsync();
                 watch.Stop();
                 this.lastError = "";
                 this.lastExec = watch.ElapsedMilliseconds;
-                Logger.Add(LogLevel.Info, "ClickHouse Client", $"(Non)Query successfully executed. Query: <{query}>. Execution Time: {this.lastExec} ms. Rows affected: {affectedRows}.", username);
+                Logger.Add(LogLevel.Info, "SQLite Client", $"(Non)Query successfully executed. Query: <{query}>. Execution Time: {this.lastExec} ms. Rows affected: {affectedRows}.", clientId);
                 return affectedRows;
             }
             catch (Exception ex)
             {
                 lastError = $"Error executing (Non)Query. Query: <{query}>. Exception: {ex.Message}.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                 return null;
             }
         }
@@ -243,13 +223,13 @@ namespace glitcher.core.Databases
         /// </summary>
         /// <param name="query">Query Text</param>
         /// <returns>(DbDataReader *async)</returns>
-        public async Task<DbDataReader?> ReaderQueryAsync(string query)
+        public async Task<DbDataReader?> QueryAsync(string query)
         {
             // Check connection
             if (!this.connected || _connection == null)
             {
                 this.lastError = $"Error during querying database. No connection found.";
-                Logger.Add(LogLevel.Fatal, "ClickHouse Client", $"{lastError}", username);;
+                Logger.Add(LogLevel.Fatal, "SQLite Client", $"{lastError}", clientId); ;
                 return null;
             }
 
@@ -257,20 +237,20 @@ namespace glitcher.core.Databases
             try
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                ClickHouseCommand cmd = new ClickHouseCommand(_connection);
+                SQLiteCommand cmd = new SQLiteCommand(_connection);
                 cmd.CommandText = query;
                 DbDataReader? reader = await cmd.ExecuteReaderAsync();
                 //reader.Close();
                 watch.Stop();
                 this.lastError = "";
                 this.lastExec = watch.ElapsedMilliseconds;
-                Logger.Add(LogLevel.Info, "ClickHouse Client", $"(Reader)Query successfully executed. Query: <{query}>. Execution Time: {this.lastExec} ms. Rows affected: {reader.RecordsAffected}.", username);
+                Logger.Add(LogLevel.Info, "SQLite Client", $"(Reader)Query successfully executed. Query: <{query}>. Execution Time: {this.lastExec} ms. Rows affected: {reader.RecordsAffected}.", clientId);
                 return reader;
             }
             catch (Exception ex)
             {
                 lastError = $"Error executing (Reader)Query. Query: <{query}>. Exception: {ex.Message}.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                 return null;
             }
         }
@@ -286,7 +266,7 @@ namespace glitcher.core.Databases
             if (!this.connected || _connection == null)
             {
                 this.lastError = $"Error during querying database. No connection found.";
-                Logger.Add(LogLevel.Fatal, "ClickHouse Client", $"{lastError}", username);
+                Logger.Add(LogLevel.Fatal, "SQLite Client", $"{lastError}", clientId);
                 return null;
             }
 
@@ -294,31 +274,30 @@ namespace glitcher.core.Databases
             try
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                ClickHouseCommand cmd = new ClickHouseCommand(_connection);
+                SQLiteCommand cmd = new SQLiteCommand(_connection);
                 cmd.CommandText = query;
                 object? result = await cmd.ExecuteScalarAsync();
                 //reader.Close();
                 watch.Stop();
                 this.lastError = "";
                 this.lastExec = watch.ElapsedMilliseconds;
-                Logger.Add(LogLevel.Info, "ClickHouse Client", $"(Scalar)Query successfully executed. Query: <{query}>. Execution Time: {this.lastExec} ms.", username);
+                Logger.Add(LogLevel.Info, "SQLite Client", $"(Scalar)Query successfully executed. Query: <{query}>. Execution Time: {this.lastExec} ms.", clientId);
                 return result;
             }
             catch (Exception ex)
             {
                 lastError = $"Error executing (Scalar)Query. Query: <{query}>. Exception: {ex.Message}.";
-                Logger.Add(LogLevel.Error, "ClickHouse Client", $"{lastError}", username);
+                Logger.Add(LogLevel.Error, "SQLite Client", $"{lastError}", clientId);
                 return null;
             }
         }
-
 
         #endregion
 
         #region Notifiers / Event Handlers
 
         /// <summary>
-        /// Notify a change on Lite ClickHouse Client.
+        /// Notify a change on Lite SQLite Client.
         /// </summary>
         /// <returns>(void)</returns>
         private void NotifyChange(string eventType)
@@ -326,7 +305,7 @@ namespace glitcher.core.Databases
             this.connected = (_connection != null) ? (_connection.State == ConnectionState.Open) : false;
             if (ChangeOccurred != null)
             {
-                ChangeOccurred.Invoke(this, new ClickHouseClientEvent(eventType));
+                ChangeOccurred.Invoke(this, new SQLiteClientEvent(eventType));
             }
         }
 
