@@ -10,7 +10,7 @@ namespace glitcher.core.Clients
     /// (Class) MQTT Client <br/>
     /// Class to connect to a MQTT Broker.<br/>
     /// **Important**<br/>
-    /// NuggetPackage required: MQTTnet
+    /// Nugget Package Required: MQTTnet<br/>
     /// </summary>
     /// <remarks>
     /// Author: Marco Fernandez (marcofdz.com / glitcher.dev)<br/>
@@ -94,7 +94,7 @@ namespace glitcher.core.Clients
         /// <summary>
         /// Start the MQTT Client.
         /// </summary>
-        /// <returns>(void *async)</returns>
+        /// <returns>(bool *async) Succeded / Failed</returns>
         public async Task<bool> Start()
         {
             // Already Connected
@@ -140,7 +140,7 @@ namespace glitcher.core.Clients
         /// <summary>
         /// Stop the MQTT Client.
         /// </summary>
-        /// <returns>(void *async)</returns>
+        /// <returns>(bool *async) Succeded / Failed</returns>
         public async Task<bool> Stop()
         {
             // Already disconnected

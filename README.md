@@ -7,6 +7,8 @@ Compilation of classes:
 - Servers > Light HTTP Server
 - Servers > WebSocket Server
 - Clients > MQTT
+- Databases > Helpers
+- Databases > ClickHouse
 - Utils > Controls (Extensions)
 - Utils > SystemTray
 - Utils > Resources
