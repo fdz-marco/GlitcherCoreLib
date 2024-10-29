@@ -56,7 +56,7 @@ namespace glitcher.core.Clients
             this.username = username;
             this.password = password;
             this.protocol = protocol;
-            this.clientId = Guid.NewGuid().ToString();
+            this.clientId = Guid.NewGuid().ToString().Substring(0, 6);
             Logger.Add(LogLevel.OnlyDebug, "MQTT Client", $"MQTT Client created. Base URL: <{baseURL}>. ClientId: <{clientId}>.", clientId);
             if (autostart)
                 this.Start();
@@ -81,7 +81,7 @@ namespace glitcher.core.Clients
             this.username = username;
             this.password = password;
             this.protocol = protocol;
-            this.clientId = Guid.NewGuid().ToString();
+            this.clientId = Guid.NewGuid().ToString().Substring(0, 6);
             if (restart)
                 await this.Start();
             Logger.Add(LogLevel.Info, "MQTT Client", $"Updated Settings. Base URL: <{baseURL}>.");
