@@ -24,7 +24,7 @@ namespace glitcher.core.Databases
         public string lastError { get; set; } = string.Empty;
         public long lastExec { get; set; } = 0;
         public bool connected { get; set; } = false;
-        public string baseURL { get => string.Format("{0}://{1}/{2}", DBTypes.SQLite.ToString().ToLower(), AppContext.BaseDirectory.ToLower(), this.server ); }
+        public string baseURL { get => string.Format("{0}://{1}{2}", DBTypes.SQLite.ToString().ToLower(), AppContext.BaseDirectory.ToLower().Replace("\\","/"), this.server ); }
         public string clientId = "";
 
         public event EventHandler<SQLiteClientEvent>? ChangeOccurred;
@@ -119,7 +119,7 @@ namespace glitcher.core.Databases
             }
 
             // Create Database file if doesn't exist
-            CreateDB();
+            CreateDB(this.server);
 
             // Execute Connection
             try
@@ -128,7 +128,7 @@ namespace glitcher.core.Databases
                 _connection = new SQLiteConnection(connectionString);
                 await _connection.OpenAsync();
                 lastError = "";
-                Logger.Add(LogLevel.Info, "SQLite Client", $"Connection stablished <{baseURL}>.", clientId);
+                Logger.Add(LogLevel.Success, "SQLite Client", $"Connection Stablished <{baseURL}>.", clientId);
                 NotifyChange("connected");
                 return true;
             }
@@ -152,7 +152,7 @@ namespace glitcher.core.Databases
             // Already disconnected
             if (!this.connected || _connection == null)
             {
-                Logger.Add(LogLevel.Info, "SQLite Client", $"SQLite Client already disconnected.", clientId);
+                Logger.Add(LogLevel.Warning, "SQLite Client", $"SQLite Client already disconnected.", clientId);
                 return true;
             }
 
