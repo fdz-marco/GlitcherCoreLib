@@ -50,7 +50,7 @@ namespace glitcher.core.Servers
         /// <param name="basePathEmbedded">The base path to find the embedded resource files (Note: Relative to root folder of project).</param>
         /// <param name="basePathLocal">The base path to find the local files (Note: Relative to Application directory).</param>
         /// <param name="allowCrossOrigin">Allow Cross Origin (CORS)</param>
-        /// <param name="autostart">Start sever on creation</param>
+        /// <param name="autostart">Start sever on Creation</param>
         public LightHTTPServer(int port = 8080, int maxConnections = 10, string basePathEmbedded = "Html", string basePathLocal = "www", bool allowCrossOrigin = false, bool autostart = false)
         {
             this.port = port;

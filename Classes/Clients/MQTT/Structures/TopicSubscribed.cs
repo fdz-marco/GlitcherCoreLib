@@ -7,7 +7,6 @@
     /// Author: Marco Fernandez (marcofdz.com / glitcher.dev)<br/>
     /// Last modified: 2024.10.25 - October 25, 2024
     /// </remarks>
-
     public class TopicSubscribed
     {
 

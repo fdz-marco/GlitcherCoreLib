@@ -37,14 +37,14 @@ namespace glitcher.core.Databases
         /// Creates a Light SQLite Client
         /// </summary>
         /// <param name="server">SQLite Server</param>
-        /// <param name="autostart">Start sever on creation</param>
+        /// <param name="autostart">Start sever on Creation</param>
         public SQLiteClient(string server = "", bool autostart = true)
         {
             this.server = server;
             this.clientId = Guid.NewGuid().ToString().Substring(0, 6);
-            Logger.Add(LogLevel.OnlyDebug, "SQLite Client", $"SQLite Client created. Base URL: <{baseURL}>.", clientId);
             if (autostart)
                 this.Connect();
+            Logger.Add(LogLevel.OnlyDebug, "SQLite Client", $"SQLite Client created. Base URL: <{baseURL}>.", clientId);
         }
 
         /// <summary>

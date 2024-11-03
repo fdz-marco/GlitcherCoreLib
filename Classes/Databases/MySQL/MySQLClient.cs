@@ -45,7 +45,7 @@ namespace glitcher.core.Databases
         /// <param name="database">MySQL Database</param>
         /// <param name="username">MySQL Username</param>
         /// <param name="password">MySQL Password</param>
-        /// <param name="autostart">Start sever on creation</param>
+        /// <param name="autostart">Start sever on Creation</param>
         public MySQLClient(string server = "", int port = 3306, string database = "", string username = "", string password = "", bool autostart = true)
         {
             this.server = server;
@@ -53,9 +53,9 @@ namespace glitcher.core.Databases
             this.database = database;
             this.username = username;
             this.password = password;
-            Logger.Add(LogLevel.OnlyDebug, "MySQL Client", $"MySQL Client created. Base URL: <{baseURL}>.", username);
             if (autostart)
                 this.Connect();
+            Logger.Add(LogLevel.OnlyDebug, "MySQL Client", $"MySQL Client created. Base URL: <{baseURL}>.", username);
         }
 
         /// <summary>

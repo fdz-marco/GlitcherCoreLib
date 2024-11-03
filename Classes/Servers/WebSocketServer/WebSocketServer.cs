@@ -42,7 +42,7 @@ namespace glitcher.core.Servers
         /// <param name="port">WebSocket Server Port (Default: 8080)</param>
         /// <param name="maxConnections">Max Number of Connections</param>
         ///  <param name="apiKey">API Key to allow requests</param>
-        /// <param name="autostart">Start sever on creation</param>
+        /// <param name="autostart">Start sever on Creation</param>
         public WebSocketServer(int port = 8080, int maxConnections = 10, string apiKey = "",  bool autostart = false)
         {
             this.port = port;
