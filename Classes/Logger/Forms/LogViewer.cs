@@ -1,4 +1,7 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace glitcher.core
 {
@@ -95,6 +98,20 @@ namespace glitcher.core
 
             // Datagrid
             RefreshContentListView();
+
+            // Click ListView
+            lv_Log.DoubleClick += Lv_Log_DoubleClick;
+        }
+
+        private void Lv_Log_DoubleClick(object? sender, EventArgs e)
+        {
+            if (lv_Log.SelectedItems.Count > 0)
+            {
+                int index = lv_Log.Items.IndexOf(lv_Log.SelectedItems[0]);
+                List<LogEntry> logList = Logger.logList;
+                //logList.Reverse();
+                MessageBox.Show($"{logList[index].Message}");
+            }
         }
 
         #endregion
